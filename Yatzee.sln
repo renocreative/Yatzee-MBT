@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yatzee.TestSuite", "Yatzee.TestSuite\Yatzee.TestSuite.csproj", "{1EBDDEDE-4172-450F-B32D-EC5B866AB350}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yatzee.Sample", "Yatzee.Sample\Yatzee.Sample.csproj", "{FCF2F070-D5F7-4825-B82E-E70ED18C72ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yatzee", "Yatzee\Yatzee.csproj", "{F9D5DEDB-DB97-40F2-9E71-B485FFE56669}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1EBDDEDE-4172-450F-B32D-EC5B866AB350}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EBDDEDE-4172-450F-B32D-EC5B866AB350}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EBDDEDE-4172-450F-B32D-EC5B866AB350}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EBDDEDE-4172-450F-B32D-EC5B866AB350}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCF2F070-D5F7-4825-B82E-E70ED18C72ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCF2F070-D5F7-4825-B82E-E70ED18C72ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCF2F070-D5F7-4825-B82E-E70ED18C72ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCF2F070-D5F7-4825-B82E-E70ED18C72ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9D5DEDB-DB97-40F2-9E71-B485FFE56669}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9D5DEDB-DB97-40F2-9E71-B485FFE56669}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9D5DEDB-DB97-40F2-9E71-B485FFE56669}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9D5DEDB-DB97-40F2-9E71-B485FFE56669}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(SpecExplorer.ActivityCompletionStatus) = preSolution
+		SpecExplorer.ActivityCompletionStatus = TestExisting: ;ModelFromScratch: 
+	EndGlobalSection
+EndGlobal

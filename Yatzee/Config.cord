@@ -1,0 +1,395 @@
+﻿// This is a Spec Explorer coordination script (Cord version 1.0).
+// Here is where you define configurations and machines describing the
+// exploration to be performed.
+
+using Yatzee.Sample;
+using Microsoft.Modeling;
+
+/// Contains actions of the model, bounds, and switches.
+config Main 
+{
+    /// The two implementation actions that will be modeled and tested
+    action abstract static void YatzeeGame.Roll(int dice1Value, int dice2Value, int dice3Value, int dice4Value, int dice5Value);
+    action abstract static int YatzeeGame.Score(string idBox, out int scoreForTheRound);
+    action abstract static void YatzeeGame.Hold(bool dice1HeldValue, bool dice2HeldValue, 
+            bool dice3HeldValue, bool dice4HeldValue, bool dice5HeldValue);
+
+    switch StepBound = 16384;
+    switch PathDepthBound = 16384;
+    switch StateBound = 16384;
+    switch TestClassBase = "vs";
+    switch GeneratedTestPath = "..\\Yatzee.TestSuite";
+    switch GeneratedTestNamespace = "Yatzee.TestSuite";
+    switch TestEnabled = false;
+    switch ForExploration = false;
+}
+
+/// Constructs a machine from the model program. 
+/// Since the model is not finite, this machine explodes
+/// and exploration is stopped by a bound.
+/// Switch ForExploration makes the machine appear in Exploration Manager.
+machine UnslicedYatzeeModel() : Main where ForExploration = true
+{
+    construct model program from Main 
+    where Scope="Yatzee" //The value of the namespace switch can be a .Net namespace or a fully-qualified class name.
+}
+
+////**************  TEST OF : ROLLS AND HOLDS **********************////
+
+/// Defines a scenario that test multiple rolls of the dices.
+machine RollsScenario() : Main where ForExploration = false
+{
+    (Roll(1,1,1,5,_); Roll(1,3,1,5,2); Roll(3,3,1,3,2); (Score | Roll(1,3,1,5,2)))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of rolling dices multiple times consecutively.
+machine Rolls() : Main where ForExploration = true
+{
+    RollsScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that test a holding of dices.
+machine HoldScenario() : Main where ForExploration = false
+{
+    let int d1, int d2, int d3, int d4, int d5
+    in
+    (Roll(1,4,3,5,5); Hold(true, false, true, true, true); 
+    Roll(d1, d2, d3, d4, d5); Score("Chance", out _))
+}
+
+/// Defines a scenario that test multiple holding of dices.
+machine MultipleHoldsScenario() : Main where ForExploration = false
+{
+    let bool d1H, bool d2H, bool d3H, bool d4H, bool d5H,
+        int d1, int d2, int d3, int d4, int d5
+          where {.
+            Combination.Pairwise(d1H, d2H, d3H, d4H, d5H);
+            Combination.SetLimit(1);
+          .}
+    in
+    (Roll(1,4,3,5,5); (Hold(true, true, true, true, true) | Hold(true, true, d3H, false, d5H)); 
+    Roll(d1, d2, 3, 3, d5); Hold(false, false, true, true, true); Roll(6, 3, d3, d4, d5); Score("Chance", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of holding the dices.
+machine SingleHold() : Main where ForExploration = true
+{
+    HoldScenario || UnslicedYatzeeModel
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of multiple holding of dices.
+machine MultipleHolds() : Main where ForExploration = true
+{
+    MultipleHoldsScenario || UnslicedYatzeeModel
+}
+
+////**************  TEST OF : SCORING IN BOXES **********************////
+
+/// Defines a scenario that test scoring in the score box One.
+machine ScoreInBoxOneScenario() : Main where ForExploration = false
+{
+    ((Roll(1,1,1,5,_)
+     |Roll(2,3,4,5,6)); Score("BoxOne", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the score box One.
+machine ScoreInBoxOne() : Main where ForExploration = true
+{
+    ScoreInBoxOneScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that test scoring in the score box Two.
+machine ScoreInBoxTwoScenario() : Main where ForExploration = false
+{
+    ((Roll(1,2,_,5,2)
+     |Roll(3,3,3,3,3)); Score("BoxTwo", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the score box Two.
+machine ScoreInBoxTwo() : Main where ForExploration = true
+{
+    ScoreInBoxTwoScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that test scoring in the score box Three.
+machine ScoreInBoxThreeScenario() : Main where ForExploration = false
+{
+    ((Roll(3,6,3,4,_)
+     |Roll(3,_,3,4,3)
+     |Roll(2,1,4,5,6)); Score("BoxThree", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the score box Three.
+machine ScoreInBoxThree() : Main where ForExploration = true
+{
+    ScoreInBoxThreeScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that test scoring in the score box Four.
+machine ScoreInBoxFourScenario() : Main where ForExploration = false
+{
+    ((Roll(_,4,1,6,4)
+     |Roll(2,_,4,4,4)
+     |Roll(5,6,6,3,3)); Score("BoxFour", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the score box Four.
+machine ScoreInBoxFour() : Main where ForExploration = true
+{
+    ScoreInBoxFourScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that test scoring in the score box Five.
+machine ScoreInBoxFiveScenario() : Main where ForExploration = false
+{
+    ((Roll(5,5,1,5,_)
+     |Roll(6,1,1,4,6)); Score("BoxFive", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the score box Five.
+machine ScoreInBoxFive() : Main where ForExploration = true
+{
+    ScoreInBoxFiveScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that test scoring in the score box Six.
+machine ScoreInBoxSixScenario() : Main where ForExploration = false
+{
+    ((Roll(1,6,2,6,_)
+     |Roll(6,3,6,_,6)
+     |Roll(2,3,3,4,5)); Score("BoxSix", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the score box Six.
+machine ScoreInBoxSix() : Main where ForExploration = true
+{
+    ScoreInBoxSixScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that test scoring in the score box Three-Of-A-Kind.
+machine ScoreInThreeOfAKindScenario() : Main where ForExploration = false
+{
+    let int d1, int d2, int d3, int d4, int d5
+          where {.
+            Condition.IsTrue(d1 == d2);
+            Condition.IsTrue(d2 == d3);
+            Condition.In(d4, 5, 2);
+          .}
+    in
+    ((Roll(d1,d2,d3, d4, 3)
+     |Roll(4,2,3,3,5)); Score("ThreeOfAKind", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the score box Three-Of-A-Kind.
+machine ScoreInThreeOfAKind() : Main where ForExploration = true
+{
+    ScoreInThreeOfAKindScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that test scoring in the score box Four-Of-A-Kind.
+machine ScoreInFourOfAKindScenario() : Main where ForExploration = false
+{
+    let int d1, int d2, int d3, int d4, int d5
+          where {.
+            Condition.IsTrue(d1 == d3);
+            Condition.IsTrue(d3 == d4);
+            Condition.IsTrue(d4 == d5);
+            Condition.IsTrue(d2 != d1);
+            Condition.In(d2, 3,4);
+          .}
+    in
+    ((Roll(d1,d2,d3,d4,d5)
+     |Roll(1,2,3,3,3)); Score("FourOfAKind", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the score box Four-Of-A-Kind.
+machine ScoreInFourOfAKind() : Main where ForExploration = true
+{
+    ScoreInFourOfAKindScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that test scoring in the score box Full House.
+machine ScoreInFullHouseScenario() : Main where ForExploration = false
+{
+    let int d1, int d2, int d3, int d4, int d5
+          where {.
+            Condition.IsTrue(d1 == d2);
+            Condition.IsTrue(d2 == d3);
+            Condition.IsTrue(d4 == d5);
+            Condition.IsTrue(d3 != d4);
+            Condition.In(d1, 2, 5);
+          .}
+    in
+    ((Roll(d1,d2,d3,d4,d5)
+     |Roll(1,2,3,3,3)); Score("FullHouse", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the score box Full House.
+machine ScoreInFullHouse() : Main where ForExploration = true
+{
+    ScoreInFullHouseScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that test scoring in the score box Small Straight.
+machine ScoreInSmallStraightScenario() : Main where ForExploration = false
+{
+    // Four sequential dice
+    let int d1, int d2, int d3, int d4, int d5
+          where {.
+            Condition.IsTrue(d2 == d1 + 1);
+            Condition.IsTrue(d3 == d2 + 1);
+            Condition.IsTrue(d4 == d3 + 1);
+          .}
+    in
+    ((Roll(d1,d2,d3,d4,3)
+     |Roll(5,d2,d3,d1,d4)
+     |Roll(d2,d4,1,d3,d1)
+     |Roll(1,2,3,3,6)); Score("SmallStraight", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the score box Small Straight.
+machine ScoreInSmallStraight() : Main where ForExploration = true
+{
+    ScoreInSmallStraightScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that test scoring in the score box Large Straight.
+machine ScoreInLargeStraightScenario() : Main where ForExploration = false
+{
+    // Five sequential dice
+    let int d1, int d2, int d3, int d4, int d5
+          where {.
+            Condition.IsTrue(d2 == d1 + 1);
+            Condition.IsTrue(d3 == d2 + 1);
+            Condition.IsTrue(d4 == d3 + 1);
+            Condition.IsTrue(d5 == d4 + 1);
+          .}
+    in
+    ((Roll(d1,d2,d3,d4,d5)
+     |Roll(d1,d2,d3,d5,d4)
+     |Roll(d3,d2,d4,d5,d1)
+     |Roll(1,2,3,4,4)); Score("LargeStraight", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the score box Large Straight.
+machine ScoreInLargeStraight() : Main where ForExploration = true
+{
+    ScoreInLargeStraightScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that test scoring in the score box Yatzee.
+machine ScoreInYatzeeScenario() : Main where ForExploration = false
+{
+    // All five dice showing the same face
+    let int d1, int d2, int d3, int d4, int d5
+          where {.
+            Condition.IsTrue(d1 == d2);
+            Condition.IsTrue(d2 == d3);
+            Condition.IsTrue(d3 == d4);
+            Condition.IsTrue(d4 == d5);
+          .}
+    in
+    ((Roll(d1,d2,d3,d4,d5)
+     |Roll(2,2,2,2,5)); Score("Yatzee", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the score box Yatzee.
+machine ScoreInYatzee() : Main where ForExploration = true
+{
+    ScoreInYatzeeScenario || UnslicedYatzeeModel
+}
+
+
+
+////**************  TEST OF : SCORING WITH BONUSES **********************////
+
+/// Defines a scenario that results in Yatzee Bonuses by awarded to the player.
+machine ScoreInLowerSectionBonusScenario() : Main where ForExploration = false
+{
+    (Roll(5,5,5,5,5); Score("Yatzee", out _); 
+     Roll(2,2,2,2,2); Score("SmallStraight", out _); 
+     Roll(2,2,1,6,2); Score("BoxOne", out _);
+     Roll(4,4,4,4,4); Score("Chance", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of scoring in the Yatzee bonus box.
+machine ScoreInLowerSectionBonus() : Main where ForExploration = true
+{
+    ScoreInLowerSectionBonusScenario || UnslicedYatzeeModel
+}
+
+/// Defines a scenario that results in Bonus in the Upper Section.
+machine ScoreInUpperSectionBonusScenario() : Main where ForExploration = false
+{
+    (Roll(6,6,6,3,6); Score("BoxSix", out _); 
+     Roll(5,5,5,5,1); Score("BoxFive", out _); 
+     Roll(2,5,1,4,1); Score("SmallStraight", out _); 
+     Roll(2,2,2,2,4); Score("BoxTwo", out _);
+     Roll(4,4,4,4,2); Score("BoxFour", out _); 
+     Roll(3,3,3,6,6); Score("FullHouse", out _); 
+     Roll(4,3,3,3,3); Score("BoxThree", out _); 
+     Roll(1,1,1,1,4); Score("BoxOne", out _))
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario of getting a bonus in the upper section.
+machine ScoreInUpperSectionBonus() : Main where ForExploration = true
+{
+    ScoreInUpperSectionBonusScenario || UnslicedYatzeeModel
+}
+
+
+////**************  SLICE YOUR YATZEE MODEL **********************////
+
+/// Defines a scenario for slicing.
+/// When explored on its own, this machine
+/// leaves all its parameters unexpanded.
+machine RollAndScoreScenario() : Main where ForExploration = true
+{
+    //Omitting the parenthesis for an action invocation 
+    //is equivalent to setting all its parameters to _ (unknown).
+    let int dice1, int dice2, int dice3, int dice4, int dice5
+          where {.
+            Combination.Pairwise(dice1, dice2, dice3, dice4, dice5);
+          .}
+    in
+    (Roll; Score)+
+}
+
+/// Selects the slice of the model program
+/// that matches the scenario. The model program
+/// supplies all parameter and state data omitted from the scenario.
+///******** NOT TO BE EXPLORED IF YOU HAVE NOT PLAYED WITH IT
+/// This machine is here only for the user to experience slicing of the model to get a convenient
+/// machine that exercises the whole Game of Yatzee (with all the thirteen rounds)
+machine SlicedYatzeeModel() : Main where ForExploration = true
+{
+    RollAndScoreScenario || UnslicedYatzeeModel // (synchronized) parallel composition]
+}
+
+/// Builds a machine resulting from a link coverage traversal
+/// of the sliced model program. It can be explored or saved as a
+/// C# test suite that can be run in a VSTS unit test project
+/// (by pushing the Generate Test Code button in the Exploration 
+/// Manager toolbar). Most tests should fail, since the sample
+/// implementation is empty.
+machine TestSuite() : Main where ForExploration = true, TestEnabled = true
+{
+    construct test cases where strategy = "ShortTests" for UnslicedYatzeeModel()
+}
