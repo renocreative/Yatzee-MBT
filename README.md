@@ -1,7 +1,7 @@
 Yatzee-MBT
 ==========
 
-Model based testing of the Yatzee Game using Spec Explorer.\n
+Model based testing of the Yatzee Game using Spec Explorer.<br>
 Spec Explorer is a powerful tool allowing the tester to define a "model progam" with "actions" and "rules".
 "Action" methods represent "mockup" behaviors of the real implementation under test (IUT).
 "Rules" are defined on action methods and mostly indicates the conditions (or program state) under which a call to the action is a valid "move".
